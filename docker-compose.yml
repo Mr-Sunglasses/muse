@@ -1,0 +1,11 @@
+services:
+  web:
+    build:
+      dockerfile: Dockerfile
+    command: ["uvicorn", src.muse.main:app", "--host", "0.0.0.0", "--port", "8080"]
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
