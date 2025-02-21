@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Coldplay Music Uploader 🎶</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #0f0c29;
+      --gradient-start: #302b63;
+      --gradient-end: #24243e;
+      --accent: #f9d423; /* Yellow */
+      --pink: #fc466b;
+      --blue: #3f5efb;
+      --green: #00ff87;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: linear-gradient(to right, var(--bg), var(--gradient-end));
+      background-size: cover;
+      background-attachment: fixed;
+      color: white;
+      overflow-x: hidden;
+      overflow-y: auto;
+      position: relative;
+    }
+    
+    .stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://cdn.pixabay.com/photo/2016/03/29/08/56/star-1280175_960_720.png') repeat;
+      animation: moveStars 100s linear infinite;
+      z-index: -1;
+      opacity: 0.3;
+      pointer-events: none; /* This is important */
+    }
+    
+
+    @keyframes moveStars {
+      0% { background-position: 0 0; }
+      100% { background-position: 1000px 1000px; }
+    }
+
+    h1, h2 {
+      color: var(--accent);
+      text-align: center;
+      text-shadow: 0 0 5px var(--blue), 0 0 10px var(--green);
+    }
+
+    form {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(6px);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+      max-width: 500px;
+      margin: 2rem auto;
+    }
+
+    input[type="file"],
+    input[type="text"] {
+      width: 100%;
+      padding: 0.7rem;
+      margin-top: 0.6rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: linear-gradient(135deg, var(--pink), var(--blue));
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, var(--green), var(--accent));
+    }
+
+    .error {
+      color: #ff6b6b;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .song-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .song-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(4px);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .song-card:hover {
+      transform: scale(1.05);
+    }
+
+    .song-card strong {
+      color: var(--accent);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    audio {
+      width: 100%;
+      outline: none;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+
+      form {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Starry background -->
+  <div class="stars"></div>
+
+  <h1>🌌 Coldplay Vibes: Music Uploader</h1>
+
+  <form action="/upload/" method="post" enctype="multipart/form-data">
+    <label>Choose a music file (.mp3, .wav, .ogg):</label>
+    <input type="file" name="file" accept="audio/mpeg, audio/wav, audio/ogg" required>
+
+    <label>Enter secret phrase:</label>
+    <input type="text" name="secret_phrase" required>
+
+    <button type="submit">Upload 🚀</button>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+  </form>
+
+  <h2>🎧 Your Songs</h2>
+  <div class="song-list">
+    {% for song in music_files %}
+      <div class="song-card">
+        <strong>{{ song }}</strong>
+        <audio controls>
+          {% set ext = song.split('.')[-1] %}
+          {% if ext == 'mp3' %}
+            <source src="{{ url_for('static', path='uploads/' + song) }}" type="audio/mpeg">
+          {% elif ext == 'wav' %}
+            <source src="{{ url_for('static', path='uploads/' + song) }}" type="audio/wav">
+          {% elif ext == 'ogg' %}
+            <source src="{{ url_for('static', path='uploads/' + song) }}" type="audio/ogg">
+          {% else %}
+            <p>Unsupported format</p>
+          {% endif %}
+        </audio>
+      </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    // Allow only one audio to play at a time
+    const audios = document.querySelectorAll("audio");
+    audios.forEach(audio => {
+      audio.addEventListener("play", () => {
+        audios.forEach(other => {
+          if (other !== audio) other.pause();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
