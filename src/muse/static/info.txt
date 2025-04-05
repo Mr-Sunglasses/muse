@@ -1,0 +1,1 @@
+All the music will store in static/uploads
